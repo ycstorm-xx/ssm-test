@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context.xsd
+       http://www.springframework.org/schema/tx
+       http://www.springframework.org/schema/tx/spring-tx.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
+    <!--扫描包-->
+    <context:component-scan base-package="com.yc"></context:component-scan>
+    <!-- spring mybatis 整合-->
+    <context:property-placeholder location="classpath:jdbc.properties"></context:property-placeholder>
+    <!--配置数据源-->
+    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close">
+        <property name="driverClassName" value="${driver}"></property>
+        <property name="url" value="${url}"></property>
+        <property name="username" value="${name}"></property>
+        <property name="password" value="${password}"></property>
+    </bean>
+    <!--配置sqlsessionFactory-->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"></property>
+        <!--加载pagehelper-->
+        <property name="plugins">
+            <array>
+                <bean class="com.github.pagehelper.PageInterceptor"></bean>
+            </array>
+        </property>
+        <!--起别名-->
+        <property name="typeAliasesPackage" value="com.yc.pojo"></property>
+        <!--读取mapper.xml文件-->
+        <property name="mapperLocations" value="classpath:mapper/*Mapper.xml"></property>
+
+        <!--也可以载入mybatis-config.xml-->
+        <!--        <property name="configLocation" value="mybatis-config.xml"></property>-->
+    </bean>
+
+    <!-- 配置mapperScannerConfigurer
+    管理DAO实现类的创建，并创建DAO对象，存入工厂管理
+
+*    扫描所有DAO接口,去构建DAO实现
+
+*   将DAO实现存入工厂管理
+
+*   DAO实现对象在工厂中的id是：“首字母小写的-接口的类名”，
+
+    例如：UserDAO==>userDAO , OrderDAO==>orderDAO
+    -->
+    <bean id="mapperScannerConfigurer" class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.yc.dao"></property>
+        <!-- 如果工厂中只有一个SqlSessionFactory的bean，此配置可省略 -->
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"></property>
+    </bean>
+
+    <!--事务控制
+    DataSourceTransactionManager 事务管理器-->
+    <bean id="tx" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"></property>
+    </bean>
+    <!--<tx:advice id="txManager" transaction-manager="tx">
+            <tx:attributes>
+                 name 方法名 代表什么方法进行操作
+                rollback-for 代表 发生异常后进行回滚操作
+                <tx:method name="deleteById" rollback-for="Exception"/>
+             </tx:attributes>
+</tx:advice>-->
+    <!--使用注解方式开启事务，进行回滚-->
+    <tx:annotation-driven transaction-manager="tx"></tx:annotation-driven>
+    <!--aop使用注解方式进行操作 proxy-target-class="true"强制cglib代理-->
+    <aop:aspectj-autoproxy proxy-target-class="true"></aop:aspectj-autoproxy>
+</beans>

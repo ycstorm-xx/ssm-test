@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yc.dao.GoodDao">
+    <resultMap id="BaseResult" type="goods">
+        <id column="g_id" property="id"></id>
+        <result column="g_name" property="name"></result>
+        <result column="g_des" property="des"></result>
+        <result column="g_price" property="price"></result>
+        <result column="g_discount" property="discount"></result>
+        <result column="g_pic" property="pic"></result>
+    </resultMap>
+
+    <sql id="BaseSql">
+        g_id,g_name,g_des,g_price,g_discount,g_pic
+    </sql>
+    <select id="selectAll" resultMap="BaseResult">
+        select <include refid="BaseSql"></include> from s_good
+    </select>
+
+    <update id="updateOne" parameterType="goods">
+        update s_good
+        <trim prefix="set" suffixOverrides=",">
+            <if test="name!=null and name!=''">
+                g_name=#{name},
+            </if>
+            <if test="des!=null and des!=''">
+                g_des=#{des},
+            </if>
+            <if test="price!=null">
+                g_price=#{price},
+            </if>
+            <if test="discount!=null">
+                g_discount=#{discount},
+            </if>
+            <if test="pic!=null and pic!=''">
+                g_pic=#{pic},
+            </if>
+        </trim>
+        <where>
+            g_id=#{id}
+        </where>
+    </update>
+
+    <delete id="deleteOne">
+        delete from s_good
+        <where>
+            g_id=#{id}
+        </where>
+    </delete>
+
+    <insert id="addOne" parameterType="goods">
+        insert into s_good(g_name,g_des,g_price,g_discount,g_pic) values (#{name},#{des},#{price},#{discount},#{pic})
+    </insert>
+</mapper>

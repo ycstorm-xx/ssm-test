@@ -1,0 +1,6 @@
+com\yc\controller\GoodController.class
+com\yc\dao\GoodDao.class
+com\yc\pojo\Goods.class
+com\yc\service\impl\GoodServiceImpl.class
+com\yc\service\GoodService.class
+com\yc\utils\UploadUtils.class
